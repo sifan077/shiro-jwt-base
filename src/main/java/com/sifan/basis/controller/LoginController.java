@@ -1,6 +1,9 @@
 package com.sifan.basis.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.sifan.basis.common.Result;
+import com.sifan.basis.domain.Utoken;
+import com.sifan.basis.service.UtokenService;
 import com.sifan.basis.shiro.jwt.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -10,11 +13,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
+import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class LoginController {
+
+    @Resource
+    private UtokenService utokenService;
+
     @PostMapping(value = "/login")
     public Object userLogin(@RequestParam(name = "username", required = true) String userName,
                             @RequestParam(name = "password", required = true) String password, ServletResponse response) {
@@ -46,7 +56,10 @@ public class LoginController {
             // 将签发的 JWT token 设置到 HttpServletResponse 的 Header 中
             ((HttpServletResponse) response).setHeader(JwtUtils.AUTH_HEADER, jwtToken);
             // 把token和用户id存入数据库中
-
+            utokenService.clearToken(userName);
+            assert jwtToken != null;
+            Utoken utoken = new Utoken(userName, jwtToken);
+            utokenService.save(utoken);
             return Result.success(jwtToken);
         } else {
             return Result.fail(401, "msg");
@@ -54,9 +67,15 @@ public class LoginController {
 
     }
 
-    @GetMapping("/logout")
-    public Object logout() {
-        return Result.success(null, "退出登录");
+    @PostMapping("/exit")
+    public Object logout(ServletRequest request) {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        String header = httpServletRequest.getHeader(JwtUtils.AUTH_HEADER);
+        String username = JwtUtils.getClaimFiled(header, "username");
+        LambdaQueryWrapper<Utoken> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(Utoken::getToken, header);
+        utokenService.remove(lqw);
+        return Result.success("退出登陆成功");
     }
 
     @GetMapping("/")

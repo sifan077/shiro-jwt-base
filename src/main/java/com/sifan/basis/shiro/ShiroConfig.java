@@ -1,8 +1,8 @@
 package com.sifan.basis.shiro;
 
 
-import com.sifan.basis.shiro.jwt.JwtFilter;
 import com.sifan.basis.shiro.jwt.JwtCredentialsMatcher;
+import com.sifan.basis.shiro.jwt.JwtFilter;
 import com.sifan.basis.shiro.realm.JwtRealm;
 import com.sifan.basis.shiro.realm.ShiroRealm;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -98,10 +98,10 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setFilters(filterMap);
 
         //配置系统受限资源以及公共资源
-        LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/login", "anon"); // 可匿名访问
-        filterChainDefinitionMap.put("/logout", "logout"); // 退出登录
         filterChainDefinitionMap.put("/", "anon"); // 主页 匿名访问
+//        filterChainDefinitionMap.put("/logout", "authc"); // 退出登录
 
         filterChainDefinitionMap.put("/**", "jwtFilter,authc"); // 需登录才能访问
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);

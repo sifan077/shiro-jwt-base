@@ -1,10 +1,12 @@
 package com.sifan.basis.shiro.jwt;
 
+import com.sifan.basis.service.UtokenService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -13,9 +15,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.util.Objects;
 
 //@Component
 public class JwtFilter extends BasicHttpAuthenticationFilter {
+    @Autowired
+    private UtokenService utokenService;
 
     /**
      * 前置拦截处理
@@ -111,6 +116,14 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             throw new IllegalStateException(msg);
         }
 
+        // 把请求头的token存入 redis 或者 mysql 数据库,然后对查询数据库内是否存在此token，如果不存在就抛出异常
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        String header = httpServletRequest.getHeader(JwtUtils.AUTH_HEADER);
+        String username = JwtUtils.getClaimFiled(header, "username");
+        String utokenServiceToken = utokenService.getToken(username);
+        if (!Objects.equals(utokenServiceToken, header)) {
+            return onLoginFailure(token, new AuthenticationException(), request, response);
+        }
 
         try {
             Subject subject = getSubject(request, response);
