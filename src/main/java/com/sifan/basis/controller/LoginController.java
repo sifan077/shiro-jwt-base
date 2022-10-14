@@ -67,7 +67,7 @@ public class LoginController {
 
     }
 
-    @PostMapping("/exit")
+    @PostMapping("/logout")
     public Object logout(ServletRequest request) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String header = httpServletRequest.getHeader(JwtUtils.AUTH_HEADER);
