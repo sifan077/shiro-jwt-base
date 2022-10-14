@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sifan.basis.mapper.UserMapper">
+
+    <!--配置类变量与数据库表列名的映射-->
+    <resultMap id="UserMap" type="com.sifan.basis.domain.User">
+        <!-- id为主键 -->
+        <id column="id" property="id"/>
+        <!-- column是数据库表的列名 , property是对应实体类的属性名 -->
+        <result column="name" property="name"/>
+        <result column="pwd" property="pwd"/>
+    </resultMap>
+
+    <select id="getUserPermissionInfoMapper" parameterType="arraylist" resultType="string">
+        select info FROM permissions WHERE id IN (
+        SELECT pid FROM role_ps WHERE rid IN(
+        SELECT id FROM role WHERE NAME IN(
+        <foreach collection='roles' item="name" open="(" separator="," close=")">
+            #{name}
+        </foreach>)
+            )
+        )
+    </select>
+</mapper>
