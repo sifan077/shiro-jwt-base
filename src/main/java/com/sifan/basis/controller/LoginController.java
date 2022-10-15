@@ -7,11 +7,10 @@ import com.sifan.basis.service.UtokenService;
 import com.sifan.basis.shiro.jwt.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
@@ -71,7 +70,6 @@ public class LoginController {
     public Object logout(ServletRequest request) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String header = httpServletRequest.getHeader(JwtUtils.AUTH_HEADER);
-        String username = JwtUtils.getClaimFiled(header, "username");
         LambdaQueryWrapper<Utoken> lqw = new LambdaQueryWrapper<>();
         lqw.eq(Utoken::getToken, header);
         utokenService.remove(lqw);
@@ -81,5 +79,17 @@ public class LoginController {
     @GetMapping("/")
     public Result<String> index() {
         return Result.success("你好，shiro jwt前后端分离");
+    }
+
+    @GetMapping("/index")
+    @RequiresAuthentication
+    public Result<String> iindex() {
+        return Result.success("我是主页");
+    }
+
+
+    @GetMapping("/index2")
+    public Result<String> iindex2() {
+        return Result.success("我是主页");
     }
 }

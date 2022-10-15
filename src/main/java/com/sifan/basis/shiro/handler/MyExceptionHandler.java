@@ -12,7 +12,7 @@ public class MyExceptionHandler {
     // 捕捉shiro的异常
     @ExceptionHandler(ShiroException.class)
     public Object handleShiroException(ShiroException e) {
-        return Result.fail(401, e.getMessage());
+        return Result.fail(401, "您权限不足或者token失效，请重新登陆");
     }
 
     // 捕捉其他所有异常

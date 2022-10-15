@@ -22,5 +22,4 @@ public class UserController {
     public Object readUser(ModelMap model) {
         return Result.success("用户修改！");
     }
-
 }

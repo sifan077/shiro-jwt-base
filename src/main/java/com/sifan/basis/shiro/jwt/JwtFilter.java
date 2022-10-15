@@ -14,7 +14,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 import java.util.Objects;
 
 //@Component
@@ -88,6 +87,19 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     }
 
     /**
+     * isAccessAllowed()方法返回false,会进入该方法，表示拒绝访问
+     *
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        return true;
+    }
+
+    /**
      * 检测Header中是否包含token字段
      *
      * @param request
@@ -148,27 +160,6 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         String authorization = httpServletRequest.getHeader(JwtUtils.AUTH_HEADER);
         JwtToken token = new JwtToken(authorization);
         return token;
-    }
-
-    /**
-     * isAccessAllowed()方法返回false,会进入该方法，表示拒绝访问
-     *
-     * @param request
-     * @param response
-     * @return
-     * @throws Exception
-     */
-    @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
-        httpServletResponse.setCharacterEncoding("UTF-8");
-        httpServletResponse.setContentType("application/json;charset=UTF-8");
-        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-
-        PrintWriter writer = httpServletResponse.getWriter();
-        writer.write("{\"errorCode\":401,\"msg\":\"UNAUTHORIZED\"}");
-        fillCorsHeader(WebUtils.toHttp(request), httpServletResponse);
-        return false;
     }
 
     /**

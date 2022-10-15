@@ -67,7 +67,7 @@ public class ShiroConfig {
      */
     @Bean
     public FilterRegistrationBean<Filter> registration(JwtFilter filter) {
-        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<Filter>(filter);
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
     }
@@ -100,10 +100,9 @@ public class ShiroConfig {
         //配置系统受限资源以及公共资源
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/login", "anon"); // 可匿名访问
-        filterChainDefinitionMap.put("/", "anon"); // 主页 匿名访问
 //        filterChainDefinitionMap.put("/logout", "authc"); // 退出登录
 
-        filterChainDefinitionMap.put("/**", "jwtFilter,authc"); // 需登录才能访问
+        filterChainDefinitionMap.put("/**", "jwtFilter"); // 需登录才能访问
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
